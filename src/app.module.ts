@@ -3,11 +3,20 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { ConfigModule } from './config/config.module.js';
 import { MongooseModule } from '@nestjs/mongoose';
-// import { VisitsModule } from './visits/visits.module.js';
+import { ConfigService } from './config/config.service.js';
+import { VisitsModule } from './visits/visits.module.js';
 
 @Module({
-  // imports: [MongooseModule.forRoot('', ConfigModule), ConfigModule],
-  // imports: [MongooseModule.forRoot('mongodb://localhost/nest'), VisitsModule],
+  imports: [
+    ConfigModule,
+    MongooseModule.forRootAsync({
+      useFactory: async (cfg: ConfigService) => ({
+        uri: cfg.MONGODB_URI,
+      }),
+      inject: [ConfigService],
+    }),
+    VisitsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
