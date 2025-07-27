@@ -39,14 +39,49 @@ export class VisitsService {
     }
   }
 
-  async getTopReferrers(): Promise<string> {
-    const visits = await this.visitModel.find({}).exec();
-    return JSON.stringify(visits);
+  async getTopReferrers(): Promise<{ referrer: string; count: number }[]> {
+    const result = await this.visitModel.aggregate([
+      {
+        $match: { referrer: { $exists: true, $ne: '' } },
+      },
+      {
+        $group: {
+          _id: '$referrer',
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+
+    return result.map((r) => ({
+      referrer: r._id,
+      count: r.count,
+    }));
   }
 
-  async getBrowserUsage(): Promise<string> {
-    const visits = await this.visitModel.find({}).exec();
-    return JSON.stringify(visits);
+  async getBrowserUsage(): Promise<{ name: string; visits: number }[]> {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const result = await this.visitModel.aggregate([
+      { $match: { timestamp: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: '$browser',
+          visits: { $sum: 1 },
+        },
+      },
+      { $sort: { visits: -1 } },
+      {
+        $project: {
+          _id: 0,
+          name: '$_id',
+          visits: 1,
+        },
+      },
+    ]);
+
+    return result;
   }
 
   async trackVisit(dto: CreateVisitDto): Promise<string> {

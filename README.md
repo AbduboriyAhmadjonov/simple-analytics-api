@@ -133,15 +133,20 @@ PORT=3000
 
 ```lua
 src/
+├── main.ts               -- Main file
 ├── app.module.ts
-├── main.ts
-├── visits/
+├── app.service.ts
+├── app.controller.ts
+├── config/               -- Config file (for .env)
+│ ├── config.module.ts
+│ ├── config.service.ts
+├── visits/               -- Endpoints
 │ ├── visits.module.ts
 │ ├── visits.controller.ts
 │ ├── visits.service.ts
-│ ├── dto/
+│ ├── dto/                -- DTO
 │ │ └── create-visit.dto.ts
-│ ├── schemas/
+│ ├── schemas/            -- Mongoose Schema
 │ │ └── visit.schema.ts
 ```
 
